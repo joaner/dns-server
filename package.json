@@ -1,0 +1,22 @@
+{
+  "name": "dns-server",
+  "version": "0.0.1",
+  "description": "DNS server writerrn by node.js",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joaner/dns-server.git"
+  },
+  "keywords": [
+    "dns"
+  ],
+  "author": "joaner",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joaner/dns-server/issues"
+  },
+  "homepage": "https://github.com/joaner/dns-server#readme"
+}
