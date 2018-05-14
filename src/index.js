@@ -1,5 +1,8 @@
 const dgram = require('dgram')
 const server = dgram.createSocket('udp4')
+const Request = require('./request')
+
+console.log(Request)
 
 server.on('error', (err) => {
   console.log(`server error:\n${err.stack}`)
@@ -7,23 +10,12 @@ server.on('error', (err) => {
 })
 
 server.on('message', (buf, rinfo) => {
-  console.log(`server got: ${buf.toString('hex')} from ${rinfo.address}:${rinfo.port}`)
+  console.log(`message from ${rinfo.address}:${rinfo.port}`)
 
-  const question = buf.slice(12);
+  const request = new Request(buf)
+  console.info(request.getHeader());
 
-  const domain = [];
-
-  let start = 0
-  let length
-  while (length = question.readUInt8(start)) {
-    const end = start + 1 + length
-    const part = question.slice(start, end)
-    domain.push(part.toString('utf8'))
-
-    start = end
-  }
-
-  console.log(`query ${domain.join('.')}`)
+  console.info('query: ' + request.getQuestion())
 })
 
 server.on('listening', () => {
