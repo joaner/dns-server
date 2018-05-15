@@ -1,11 +1,11 @@
 const dgram = require('dgram')
 const server = dgram.createSocket('udp4')
-const Request = require('./request')
+const Request = require('./src/request')
 
-console.log(Request)
+process.title = process.env.npm_package_name;
 
 server.on('error', (err) => {
-  console.log(`server error:\n${err.stack}`)
+  console.error(`server error:\n${err.stack}`)
   server.close();
 })
 

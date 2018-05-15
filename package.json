@@ -2,8 +2,9 @@
   "name": "dns-server",
   "version": "0.0.1",
   "description": "DNS server writerrn by node.js",
-  "main": "src/index.js",
+  "main": "server.js",
   "scripts": {
+    "stop": "pkill $npm_package_name",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
