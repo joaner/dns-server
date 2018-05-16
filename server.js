@@ -13,9 +13,8 @@ server.on('message', (buf, rinfo) => {
   console.log(`message from ${rinfo.address}:${rinfo.port}`)
 
   const request = new Request(buf)
-  console.info(request.getHeader());
-
-  console.info('query: ' + request.getQuestion())
+  console.info(request.getHeader())
+  console.info(request.getQuestion())
 })
 
 server.on('listening', () => {

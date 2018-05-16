@@ -4,6 +4,11 @@ module.exports = class Request {
    */
   constructor(buffer) {
     this.buffer = buffer
+
+    this.lengths = {
+      header: 12,
+      question: null,
+    }
   }
 
   /**
@@ -11,7 +16,7 @@ module.exports = class Request {
    * @return {Object}
    */
   getHeader() {
-    const section = this.buffer.slice(0, 12)
+    const section = this.buffer.slice(0, this.lengths.header)
 
     const info = section.readUInt16BE(2)
 
@@ -39,20 +44,32 @@ module.exports = class Request {
    * @return {String}
    */
   getQuestion() {
-    const section = this.buffer.slice(12);
+    const section = this.buffer.slice(this.lengths.header);
 
     const domain = [];
 
-    let start = 0
+    let offset = 0
     let length
-    while (length = section.readUInt8(start)) {
-      const end = start + 1 + length
-      const part = section.slice(start + 1, end)
+    while (length = section.readUInt8(offset)) {
+      const end = offset + 1 + length
+      const part = section.slice(offset + 1, end)
       domain.push(part.toString('utf8'))
 
-      start = end
+      offset = end
     }
 
-    return domain.join('.')
+    offset += 1
+    const QTYPE = section.readUInt16BE(offset)
+
+    offset += 2
+    const QCLASS = section.readUInt16BE(offset)
+
+    this.lengths.question = offset + 2
+
+    return {
+      QNAME: domain.join('.'),
+      QTYPE,
+      QCLASS,
+    }
   }
 }
