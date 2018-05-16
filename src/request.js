@@ -21,6 +21,7 @@ module.exports = class Request {
     const info = section.readUInt16BE(2)
 
     const header = {
+      _BUFFER: section,
       ID: section.readUInt16BE(0),
       QR: info >>> 31, // 1 bit
       OPCODE: info << 1 >>> 28, // 4 bits
@@ -67,6 +68,8 @@ module.exports = class Request {
     this.lengths.question = offset + 2
 
     return {
+      _BUFFER: section.slice(0, this.lengths.question),
+      _BUFFER_QNAME: section.slice(0, this.lengths.question - 4),
       QNAME: domain.join('.'),
       QTYPE,
       QCLASS,
