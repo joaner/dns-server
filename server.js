@@ -28,7 +28,7 @@ server.on('message', (buf, rinfo) => {
 
   const IP = Buffer.allocUnsafe(4)
   const answer = {
-    NAME: question._BUFFER_QNAME,
+    NAME: question.QNAME,
     TYPE: question.QTYPE,
     CLASS: question.QCLASS,
     TTL: 3600,

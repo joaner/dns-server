@@ -60,8 +60,7 @@ module.exports = class Request {
 
     return {
       _BUFFER: section.slice(0, this.lengths.question),
-      _BUFFER_QNAME: section.slice(0, this.lengths.question - 4),
-      QNAME: hostname.join('.'),
+      QNAME: hostname,
       QTYPE,
       QCLASS,
     }

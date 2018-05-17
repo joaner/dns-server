@@ -1,3 +1,5 @@
+const { writeName } = require('./utils');
+
 module.exports = class Response {
   constructor() {
     this.buffer = Buffer.alloc(512)
@@ -37,8 +39,10 @@ module.exports = class Response {
 
   setAnswer(answer) {
     let offset = this.lengths.header + this.lengths.question
-    this.buffer.fill(answer.NAME, offset, offset + answer.NAME.length)
-    offset += answer.NAME.length
+
+    const { buffer, length } = writeName(answer.NAME)
+    this.buffer.fill(buffer, offset, offset + length)
+    offset += length
 
     this.buffer.writeUInt16BE(answer.TYPE, offset)
     offset += 2

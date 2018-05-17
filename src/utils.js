@@ -17,6 +17,31 @@ module.exports.readName = function(buffer) {
 
   return {
     length: offset + 1,
-    hostname,
+    hostname: hostname.join('.'),
+  }
+}
+
+/**
+ * write name buffer
+ * @param {Buffer} buffer
+ */
+module.exports.writeName = function(hostname) {
+  const length = Buffer.byteLength(hostname) + 2
+  const buffer = Buffer.alloc(length)
+
+  let offset = 0
+  for (const part of hostname.split('.')) {
+    const length = Buffer.byteLength(part)
+
+    buffer.writeUInt8(length, offset++)
+    buffer.write(part, offset, offset + length)
+
+    offset += length
+  }
+  buffer.writeUInt8(0, offset)
+
+  return {
+    length,
+    buffer,
   }
 }
