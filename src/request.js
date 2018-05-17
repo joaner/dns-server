@@ -1,3 +1,5 @@
+const { readName } = require('./utils');
+
 module.exports = class Request {
   /**
    * @param {Buffer} buffer - message
@@ -45,32 +47,21 @@ module.exports = class Request {
    * @return {String}
    */
   getQuestion() {
-    const section = this.buffer.slice(this.lengths.header);
+    const section = this.buffer.slice(this.lengths.header)
 
-    const domain = [];
+    const { length, hostname } = readName(section)
+    let offset = length
 
-    let offset = 0
-    let length
-    while (length = section.readUInt8(offset)) {
-      const end = offset + 1 + length
-      const part = section.slice(offset + 1, end)
-      domain.push(part.toString('utf8'))
-
-      offset = end
-    }
-
-    offset += 1
     const QTYPE = section.readUInt16BE(offset)
-
     offset += 2
-    const QCLASS = section.readUInt16BE(offset)
 
+    const QCLASS = section.readUInt16BE(offset)
     this.lengths.question = offset + 2
 
     return {
       _BUFFER: section.slice(0, this.lengths.question),
       _BUFFER_QNAME: section.slice(0, this.lengths.question - 4),
-      QNAME: domain.join('.'),
+      QNAME: hostname.join('.'),
       QTYPE,
       QCLASS,
     }
