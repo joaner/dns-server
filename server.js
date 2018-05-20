@@ -14,13 +14,14 @@ server.on('message', (buf, rinfo) => {
   console.log(`message from ${rinfo.address}:${rinfo.port}`)
 
   const request = new Request(buf)
+  const { header, questions } = request.execute()
+  console.log(header, questions);
 
-  const header = request.getHeader()
   header.QR = 1
   header.RD = 1
   header.ANCOUNT = 1
 
-  const question = request.getQuestion()
+  const question = questions[0]
 
   const response = new Response()
   response.setHeader(header)

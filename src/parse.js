@@ -6,10 +6,26 @@ module.exports = class Request {
    */
   constructor(buffer) {
     this.buffer = buffer
+    this.offset = 0
+  }
 
-    this.lengths = {
-      header: 12,
-      question: null,
+  /**
+   * execute parse sections
+   * @return {Object} sections
+   */
+  execute() {
+    const header = this.getHeader()
+    const questions = this.parseSections(header.QDCOUNT, this.getQuestion)
+    const answers = this.parseSections(header.ANCOUNT, this.getResource)
+    const authoritys = this.parseSections(header.NSCOUNT, this.getResource)
+    const additionals = this.parseSections(header.ARCOUNT, this.getResource)
+
+    return {
+      header,
+      questions,
+      answers,
+      authoritys,
+      additionals,
     }
   }
 
@@ -18,13 +34,10 @@ module.exports = class Request {
    * @return {Object}
    */
   getHeader() {
-    const section = this.buffer.slice(0, this.lengths.header)
-
-    const info = section.readUInt16BE(2)
+    const info = this.buffer.readUInt16BE(2)
 
     const header = {
-      _BUFFER: section,
-      ID: section.readUInt16BE(0),
+      ID: this.buffer.readUInt16BE(0),
       QR: info >>> 31, // 1 bit
       OPCODE: info << 1 >>> 28, // 4 bits
       AA: info << 5 >>> 31, // 1 bit
@@ -33,14 +46,14 @@ module.exports = class Request {
       RA: info << 8 >>> 31, // 1 bit
       Z: info << 9 >>> 29, // 3 bits
       RCODE: info << 12 >>> 28, // 4 bits
-      QDCOUNT: section.readUInt16BE(4),
-      ANCOUNT: section.readUInt16BE(6),
-      NSCOUNT: section.readUInt16BE(8),
-      ARCOUNT: section.readUInt16BE(10),
+      QDCOUNT: this.buffer.readUInt16BE(4),
+      ANCOUNT: this.buffer.readUInt16BE(6),
+      NSCOUNT: this.buffer.readUInt16BE(8),
+      ARCOUNT: this.buffer.readUInt16BE(10),
     }
 
-    this.header = header
-    return this.header
+    this.offset = 12
+    return header
   }
 
   /**
@@ -48,56 +61,56 @@ module.exports = class Request {
    * @return {String}
    */
   getQuestion() {
-    const section = this.buffer.slice(this.lengths.header)
+    const { length, hostname } = readName(this.buffer.slice(this.offset))
+    this.offset += length
 
-    const { length, hostname } = readName(section)
-    let offset = length
+    const QTYPE = this.buffer.readUInt16BE(this.offset)
+    this.offset += 2
 
-    const QTYPE = section.readUInt16BE(offset)
-    offset += 2
-
-    const QCLASS = section.readUInt16BE(offset)
-    this.lengths.question = offset + 2
+    const QCLASS = this.buffer.readUInt16BE(this.offset)
+    this.offset += 2
 
     return {
-      _BUFFER: section.slice(0, this.lengths.question),
       QNAME: hostname,
       QTYPE,
       QCLASS,
     }
   }
 
-  getAnswers() {
-
+  /**
+   * parse multi section
+   * @param {Number} count
+   * @param {fn}
+   */
+  parseSections(count, fn) {
+    return Array.from({ length: count }).map(() => {
+      return fn.call(this)
+    })
   }
 
   /**
    * read answer section
    */
-  static parseResource(buffer) {
-    let offset = 0
+  getResource() {
+    const { length, hostname } = readName(this.buffer.slice(this.offset))
+    this.offset += length
 
-    const { length, hostname } = readName(buffer)
-    length += length
+    const TYPE = section.readUInt16BE(this.offset)
+    this.offset += 2
 
-    const TYPE = section.readUInt16BE(offset)
-    offset += 2
+    const CLASS = section.readUInt16BE(this.offset)
+    this.offset += 2
 
-    const CLASS = section.readUInt16BE(offset)
-    offset += 2
+    const TTL = section.readUInt32BE(this.offset)
+    this.offset += 4
 
-    const TTL = section.readUInt32BE(offset)
-    offset += 4
+    const RDLENGTH = section.readUInt16BE(this.offset)
+    this.offset += 2
 
-    const RDLENGTH = section.readUInt16BE(offset)
-    offset += 2
-
-    const RDATA = section.slice(offset, offset + RDLENGTH)
-    offset += RDLENGTH
+    const RDATA = section.slice(this.offset, this.offset + RDLENGTH)
+    this.offset += RDLENGTH
 
     return {
-      _BUFFER: buffer.slice(0, offset)
-      _LENGTH: offset,
       NAME: hostname,
       TYPE,
       CLASS,
