@@ -34,7 +34,7 @@ module.exports = class Parse {
    * @return {Object}
    */
   getHeader() {
-    const info = this.buffer.readUInt16BE(2)
+    const info = Number(this.buffer.readUInt16BE(2))
 
     const header = {
       ID: this.buffer.readUInt16BE(0),
@@ -95,19 +95,19 @@ module.exports = class Parse {
     const { length, hostname } = readName(this.buffer.slice(this.offset))
     this.offset += length
 
-    const TYPE = section.readUInt16BE(this.offset)
+    const TYPE = this.buffer.readUInt16BE(this.offset)
     this.offset += 2
 
-    const CLASS = section.readUInt16BE(this.offset)
+    const CLASS = this.buffer.readUInt16BE(this.offset)
     this.offset += 2
 
-    const TTL = section.readUInt32BE(this.offset)
+    const TTL = this.buffer.readUInt32BE(this.offset)
     this.offset += 4
 
-    const RDLENGTH = section.readUInt16BE(this.offset)
+    const RDLENGTH = this.buffer.readUInt16BE(this.offset)
     this.offset += 2
 
-    const RDATA = section.slice(this.offset, this.offset + RDLENGTH)
+    const RDATA = this.buffer.slice(this.offset, this.offset + RDLENGTH)
     this.offset += RDLENGTH
 
     return {

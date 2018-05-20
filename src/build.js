@@ -11,15 +11,18 @@ module.exports = class Build {
    * build
    */
   execute({ header, questions, answers, authoritys, additionals }) {
-    header.QDCOUNT = questions.length
-    header.ANCOUNT = answers.length
-    this.setHeader(header)
+    header.QDCOUNT = questions ? questions.length : 0
+    header.ANCOUNT = answers ? answers.length : 0
+    header.QDCOUNT = authoritys ? authoritys.length : 0
+    header.ARCOUNT = additionals ? additionals.length : 0
 
-    this.buildSections(questions, this.setQuestion)
+    this.setHeader(header); console.log(this.offset);
 
-    this.buildSections(answers, this.setResource)
-    this.buildSections(authoritys, this.setResource)
-    this.buildSections(additionals, this.setResource)
+    this.buildSections(questions, this.setQuestion); console.log('questions', this.offset);
+
+    this.buildSections(answers, this.setResource); console.log('answers', this.offset);
+    this.buildSections(authoritys, this.setResource); console.log(this.offset);
+    this.buildSections(additionals, this.setResource); console.log(this.offset);
 
     this.buffer = this.buffer.slice(0, this.offset)
     return this.buffer
@@ -57,6 +60,8 @@ module.exports = class Build {
     this.buffer.writeUInt16BE(header.ANCOUNT, this.offset += 2)
     this.buffer.writeUInt16BE(header.NSCOUNT, this.offset += 2)
     this.buffer.writeUInt16BE(header.ARCOUNT, this.offset += 2)
+
+    this.offset += 2
   }
 
   setQuestion(question) {

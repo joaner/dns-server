@@ -15,7 +15,6 @@ server.on('message', (buf, rinfo) => {
 
   const request = new Request(buf)
   const { header, questions } = request.execute()
-  console.log(header, questions);
 
   header.QR = 1
   header.RD = 1
@@ -35,7 +34,7 @@ server.on('message', (buf, rinfo) => {
     questions,
     answers: [answer],
   })
-  console.log(answer, response.buffer)
+  console.log(response.buffer.toString('hex'))
   server.send(response.buffer, rinfo.port, rinfo.address)
 })
 
