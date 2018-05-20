@@ -1,4 +1,5 @@
 const dgram = require('dgram')
+const dns = require('dns')
 const server = dgram.createSocket('udp4')
 const Request = require('./src/request')
 const Build = require('./src/build')
@@ -19,23 +20,31 @@ server.on('message', (buf, rinfo) => {
   header.QR = 1
   header.RD = 1
 
-  const response = new Build()
   const question = questions[0]
-  const answer = {
-    NAME: question.QNAME,
-    TYPE: question.QTYPE,
-    CLASS: question.QCLASS,
-    TTL: 3600,
-    RDLENGTH: 4,
-    RDATA: Buffer.from([8, 8, 8, 4]),
-  }
-  response.execute({
-    header,
-    questions,
-    answers: [answer],
-  })
 
-  server.send(response.buffer, rinfo.port, rinfo.address)
+
+  dns.resolve4(question.QNAME, (err, addresses) => {
+    const response = new Build()
+
+    const answers = addresses.map(address => {
+      const rdata = Buffer.from(address.split('.').map(item => +item))
+      return {
+        NAME: question.QNAME,
+        TYPE: question.QTYPE,
+        CLASS: question.QCLASS,
+        TTL: 3600,
+        RDLENGTH: Buffer.byteLength(rdata),
+        RDATA: rdata,
+      }
+    })
+    response.execute({
+      header,
+      questions,
+      answers,
+    })
+
+    server.send(response.buffer, rinfo.port, rinfo.address)
+  })
 })
 
 server.on('listening', () => {
