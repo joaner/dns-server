@@ -1,7 +1,7 @@
 const dgram = require('dgram')
 const server = dgram.createSocket('udp4')
 const Request = require('./src/request')
-const Response = require('./src/response')
+const Build = require('./src/build')
 
 process.title = process.env.npm_package_name;
 
@@ -19,25 +19,23 @@ server.on('message', (buf, rinfo) => {
 
   header.QR = 1
   header.RD = 1
-  header.ANCOUNT = 1
 
+  const response = new Build()
   const question = questions[0]
-
-  const response = new Response()
-  response.setHeader(header)
-  response.setQuestion(question)
-
-  const IP = Buffer.allocUnsafe(4)
   const answer = {
     NAME: question.QNAME,
     TYPE: question.QTYPE,
     CLASS: question.QCLASS,
     TTL: 3600,
     RDLENGTH: 4,
-    RDATA: IP,
+    RDATA: Buffer.from([8, 8, 8, 4]),
   }
-  response.setAnswer(answer)
-
+  response.execute({
+    header,
+    questions,
+    answers: [answer],
+  })
+  console.log(answer, response.buffer)
   server.send(response.buffer, rinfo.port, rinfo.address)
 })
 

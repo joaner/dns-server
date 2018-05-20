@@ -1,6 +1,6 @@
 const { readName } = require('./utils');
 
-module.exports = class Request {
+module.exports = class Parse {
   /**
    * @param {Buffer} buffer - message
    */
