@@ -13,16 +13,16 @@ module.exports = class Build {
   execute({ header, questions, answers, authoritys, additionals }) {
     header.QDCOUNT = questions ? questions.length : 0
     header.ANCOUNT = answers ? answers.length : 0
-    header.QDCOUNT = authoritys ? authoritys.length : 0
+    header.NSCOUNT = authoritys ? authoritys.length : 0
     header.ARCOUNT = additionals ? additionals.length : 0
 
-    this.setHeader(header); console.log(this.offset);
+    this.setHeader(header)
 
-    this.buildSections(questions, this.setQuestion); console.log('questions', this.offset);
+    this.buildSections(questions, this.setQuestion)
 
-    this.buildSections(answers, this.setResource); console.log('answers', this.offset);
-    this.buildSections(authoritys, this.setResource); console.log(this.offset);
-    this.buildSections(additionals, this.setResource); console.log(this.offset);
+    this.buildSections(answers, this.setResource)
+    this.buildSections(authoritys, this.setResource)
+    this.buildSections(additionals, this.setResource)
 
     this.buffer = this.buffer.slice(0, this.offset)
     return this.buffer

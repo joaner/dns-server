@@ -34,7 +34,7 @@ server.on('message', (buf, rinfo) => {
     questions,
     answers: [answer],
   })
-  console.log(response.buffer.toString('hex'))
+
   server.send(response.buffer, rinfo.port, rinfo.address)
 })
 
