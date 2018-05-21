@@ -15,8 +15,9 @@ $ sudo npm stop
 
 ## TODO
 
-- [ ] parse QTYPE,QCLASS,ANSWER... request
-- [ ] build response
+- [x] parse QTYPE,QCLASS,ANSWER... request
+- [x] build response
+- [ ] parent DNS server
 - [ ] PM2 control
 - [ ] TCP protocol
 - [ ] unit test
